@@ -1,0 +1,385 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* Smooth scrolling and performance optimizations */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 2rem;
+  scroll-snap-type: y proximity;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Roboto", sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Enhanced scroll-snap for sections */
+section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Custom cursor styles for enhanced interaction */
+.cursor-text {
+  cursor: none;
+}
+
+/* Smooth cursor movement optimization */
+html,
+body {
+  cursor: none;
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Performance optimizations for animations */
+* {
+  will-change: auto;
+}
+
+/* Selective hardware acceleration for non-cursor elements */
+.scroll-element,
+[data-animation] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Optimize for high refresh rate displays */
+@media (min-resolution: 120dpi) {
+  * {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a855f7 0%, #ec4899 100%);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #9333ea 0%, #db2777 100%);
+}
+
+/* Text selection styling */
+::selection {
+  background: rgba(168, 85, 247, 0.3);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: rgba(168, 85, 247, 0.3);
+  color: inherit;
+}
+
+/* Enhanced ThreadSection Styling */
+.highlight-primary {
+  position: relative;
+}
+
+.highlight-primary::before {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #8b5cf6, #a855f7);
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+.highlight-musical {
+  position: relative;
+  color: #7c3aed;
+}
+
+.highlight-musical::before {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #ec4899, #f472b6);
+  border-radius: 2px;
+  opacity: 0.6;
+  animation: musicalPulse 2s ease-in-out infinite;
+}
+
+.highlight-code {
+  position: relative;
+  color: #0f766e;
+  background: linear-gradient(
+    90deg,
+    rgba(6, 182, 212, 0.1),
+    rgba(8, 145, 178, 0.1)
+  );
+  padding: 2px 6px;
+  border-radius: 4px;
+  border-left: 3px solid #06b6d4;
+}
+
+.highlight-fitness {
+  position: relative;
+  color: #dc2626;
+  background: linear-gradient(
+    90deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(220, 38, 38, 0.1)
+  );
+  padding: 2px 6px;
+  border-radius: 4px;
+  border-left: 3px solid #ef4444;
+}
+
+.highlight-truth {
+  position: relative;
+  color: #7c2d12;
+  background: linear-gradient(
+    90deg,
+    rgba(251, 146, 60, 0.15),
+    rgba(249, 115, 22, 0.1)
+  );
+  padding: 2px 6px;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(251, 146, 60, 0.3);
+}
+
+/* Animation keyframes */
+@keyframes musicalPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Thread animation enhancements */
+.thread-path {
+  filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.4));
+}
+
+.musical-note {
+  filter: drop-shadow(0 2px 4px rgba(168, 85, 247, 0.3));
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+}
+
+.rhythm-pulse {
+  filter: blur(0.5px);
+  transition: filter 0.3s ease;
+}
+
+.rhythm-pulse:hover {
+  filter: blur(0px);
+}
+
+/* Enhanced cursor trail performance optimizations */
+.cursor-trail {
+  will-change: transform, opacity;
+  transform: translateZ(0); /* Force hardware acceleration */
+  backface-visibility: hidden;
+}
+
+/* Smooth cursor animations */
+.cursor-element {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+/* Optimize trail rendering */
+.trail-container {
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+/* Prevent cursor lag on high-DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .cursor-element {
+    transform: translateZ(0) scale(1);
+  }
+}
+
+/* Reduce motion for accessibility while maintaining smooth cursor */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  /* Keep cursor smooth even with reduced motion */
+  .cursor-element {
+    transition: transform 0.1s ease-out !important;
+  }
+}
+
+/* Enhanced grid system for background animations */
+.grid-cols-16 {
+  grid-template-columns: repeat(16, minmax(0, 1fr));
+}
+
+/* Advanced particle and morphing effects */
+.morphing-element {
+  filter: drop-shadow(0 4px 8px rgba(139, 92, 246, 0.3));
+  backdrop-filter: blur(2px);
+}
+
+.enhanced-particle {
+  background: conic-gradient(from 0deg, #8b5cf6, #ec4899, #3b82f6, #8b5cf6);
+  border-radius: 50%;
+}
+
+/* Text animation enhancements */
+.word-reveal {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.char-reveal {
+  display: inline-block;
+  transform: translateY(100%);
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.char-reveal.animate {
+  transform: translateY(0);
+}
+
+/* Enhanced gradient backgrounds */
+.gradient-mesh {
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(139, 92, 246, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(236, 72, 153, 0.3) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 40%,
+      rgba(59, 130, 246, 0.2) 0%,
+      transparent 50%
+    );
+  background-size: 100% 100%, 80% 80%, 60% 60%;
+  background-position: 0% 0%, 100% 100%, 50% 50%;
+  animation: meshMove 20s ease-in-out infinite;
+}
+
+@keyframes meshMove {
+  0%,
+  100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+  33% {
+    background-position: 100% 0%, 0% 100%, 80% 20%;
+  }
+  66% {
+    background-position: 0% 100%, 100% 0%, 20% 80%;
+  }
+}
+
+/* Scroll velocity indicator */
+.scroll-velocity-indicator {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* Enhanced thread paths with glow */
+.enhanced-thread-path {
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Interactive hover states */
+.interactive-text:hover {
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.3s ease;
+}
+
+/* Performance-optimized transforms */
+.gpu-optimized {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+/* Smooth transitions for section changes */
+.section-transition {
+  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+}
+
+/* Floating elements with physics-like movement */
+.floating-physics {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(10px) rotate(-1deg);
+  }
+}
