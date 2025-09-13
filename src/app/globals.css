@@ -3,9 +3,6 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -348,7 +345,119 @@ section {
 .gpu-optimized {
   transform: translateZ(0);
   backface-visibility: hidden;
-  perspective: 1000;
+}
+
+/* Language Loader Specific Styles */
+.bg-gradient-radial {
+  background: radial-gradient(var(--tw-gradient-stops));
+}
+
+/* Enhanced typography for language loader */
+.language-text {
+  font-feature-settings: "liga" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sophisticated blur effects for language transitions */
+.language-blur-in {
+  animation: blurIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.language-blur-out {
+  animation: blurOut 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes blurIn {
+  0% {
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px) scale(1);
+  }
+}
+
+@keyframes blurOut {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateY(-30px) scale(1.1);
+  }
+}
+
+/* Particle system for language loader */
+.language-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 3s ease-in-out infinite;
+}
+
+@keyframes particleFloat {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-50px) rotate(180deg);
+  }
+}
+
+/* Sophisticated loading progress */
+.loading-progress {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(139, 92, 246, 0.1) 25%,
+    rgba(139, 92, 246, 0.3) 50%,
+    rgba(236, 72, 153, 0.3) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: progressShimmer 2s ease-in-out infinite;
+}
+
+@keyframes progressShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Typography scale for different screen sizes */
+@media (max-width: 640px) {
+  .language-text-responsive {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .language-text-responsive {
+    font-size: 4rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .language-text-responsive {
+    font-size: 6rem;
+  }
 }
 
 /* Smooth transitions for section changes */

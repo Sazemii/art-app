@@ -11,6 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import LanguageLoader from "../components/LanguageLoader";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
@@ -36,7 +37,34 @@ function getSeededValue(index, min, max, precision = 4) {
 
 export default function Home() {
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ container: containerRef });
+
+  // Loading state management
+  const [isLoading, setIsLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
+
+  // Handle loading completion
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+    setTimeout(() => {
+      setShowContent(true);
+    }, 100);
+  };
+
+  // Show loading screen first
+  if (isLoading) {
+    return <LanguageLoader onComplete={handleLoadingComplete} />;
+  }
+
+  return <MainContent containerRef={containerRef} showContent={showContent} />;
+}
+
+// Separate component for main content to handle scroll after loading
+function MainContent({ containerRef, showContent }) {
+  // Setup scroll only in main content component
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
 
   // Cursor tracking with motion values for optimal performance
   const mouseX = useMotionValue(0);
@@ -80,40 +108,57 @@ export default function Home() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative scroll-smooth cursor-none">
-      {/* High-Performance Blended Cursor */}
-      <BlendedCursor mouseX={mouseX} mouseY={mouseY} isHovering={isHovering} />
-
-      {/* Enhanced progress indicator */}
+    <>
+      {/* Main Content with entrance animation */}
       <motion.div
-        className="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 z-50 shadow-lg shadow-purple-500/20"
-        style={{
-          width: useTransform(smoothProgress, [0, 1], ["0%", "100%"]),
-          opacity: useTransform(scrollVelocity, [-0.5, 0, 0.5], [0.3, 1, 0.3]),
-        }}
-      />
+        ref={containerRef}
+        className="relative scroll-smooth cursor-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showContent ? 1 : 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        {/* High-Performance Blended Cursor */}
+        <BlendedCursor
+          mouseX={mouseX}
+          mouseY={mouseY}
+          isHovering={isHovering}
+        />
 
-      {/* Scroll velocity indicator */}
-      <motion.div
-        className="fixed top-4 right-4 w-2 h-2 bg-white/30 rounded-full z-40"
-        style={{
-          scale: velocityFactor,
-          opacity: useTransform(scrollVelocity, [-0.5, 0, 0.5], [1, 0.3, 1]),
-        }}
-      />
+        {/* Enhanced progress indicator */}
+        <motion.div
+          className="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 z-50 shadow-lg shadow-purple-500/20"
+          style={{
+            width: useTransform(smoothProgress, [0, 1], ["0%", "100%"]),
+            opacity: useTransform(
+              scrollVelocity,
+              [-0.5, 0, 0.5],
+              [0.3, 1, 0.3]
+            ),
+          }}
+        />
 
-      {/* Hero Section */}
-      <HeroSection />
+        {/* Scroll velocity indicator */}
+        <motion.div
+          className="fixed top-4 right-4 w-2 h-2 bg-white/30 rounded-full z-40"
+          style={{
+            scale: velocityFactor,
+            opacity: useTransform(scrollVelocity, [-0.5, 0, 0.5], [1, 0.3, 1]),
+          }}
+        />
 
-      {/* Enhanced Essay Sections */}
-      <EnhancedThreadSection setIsHovering={setIsHovering} />
-      <EnhancedScreenSection setIsHovering={setIsHovering} />
-      <EnhancedMotionSection setIsHovering={setIsHovering} />
-      <EnhancedTrainingSection setIsHovering={setIsHovering} />
-      <EnhancedInspirationSection setIsHovering={setIsHovering} />
-      <EnhancedPhilosophySection setIsHovering={setIsHovering} />
-      <EnhancedConclusionSection setIsHovering={setIsHovering} />
-    </div>
+        {/* Hero Section */}
+        <HeroSection />
+
+        {/* Enhanced Essay Sections */}
+        <EnhancedThreadSection setIsHovering={setIsHovering} />
+        <EnhancedScreenSection setIsHovering={setIsHovering} />
+        <EnhancedMotionSection setIsHovering={setIsHovering} />
+        <EnhancedTrainingSection setIsHovering={setIsHovering} />
+        <EnhancedInspirationSection setIsHovering={setIsHovering} />
+        <EnhancedPhilosophySection setIsHovering={setIsHovering} />
+        <EnhancedConclusionSection setIsHovering={setIsHovering} />
+      </motion.div>
+    </>
   );
 }
 
