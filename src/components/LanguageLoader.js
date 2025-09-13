@@ -189,13 +189,13 @@ const LanguageLoader = ({ onComplete }) => {
 
       {/* Main Content Container */}
       <div className="relative z-10 text-center">
-        {/* Language Text Display */}
+        {/* Language Text Display with Synchronized Label */}
         <div className="relative h-32 flex items-center justify-center">
           <AnimatePresence mode="wait">
             {currentTranslation && (
               <motion.div
                 key={currentIndex}
-                className="absolute"
+                className="absolute flex flex-col items-center"
                 initial={{
                   opacity: 0,
                   scale: currentTranslation.isSpecial ? 0.8 : 1,
@@ -227,33 +227,17 @@ const LanguageLoader = ({ onComplete }) => {
                 >
                   {currentTranslation.text}
                 </h1>
+                
+                {/* Language Label - Now synchronized within the same AnimatePresence */}
+                <p
+                  className="text-sm text-gray-700 tracking-widest uppercase font-semibold font-inter mt-8"
+                >
+                  {currentTranslation.lang}
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        {/* Language Label - Fixed to use the same currentTranslation */}
-        <motion.div
-          className="mt-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <AnimatePresence mode="wait">
-            {currentTranslation && (
-              <motion.p
-                key={`lang-${currentIndex}`}
-                className="text-sm text-gray-700 tracking-widest uppercase font-semibold font-inter"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-              >
-                {currentTranslation.lang}
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </motion.div>
 
         {/* Decorative Elements */}
         <motion.div
