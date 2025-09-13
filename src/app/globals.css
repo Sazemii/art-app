@@ -41,17 +41,6 @@ section {
   scroll-snap-stop: normal;
 }
 
-/* Custom cursor styles for enhanced interaction */
-.cursor-text {
-  cursor: none;
-}
-
-/* Smooth cursor movement optimization */
-html,
-body {
-  cursor: none;
-}
-
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -255,7 +244,7 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   /* Keep cursor smooth even with reduced motion */
   .cursor-element {
     transition: transform 0.1s ease-out !important;

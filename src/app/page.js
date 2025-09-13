@@ -5,7 +5,6 @@ import {
   useScroll,
   useTransform,
   useSpring,
-  useMotionValue,
   useVelocity,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -37,8 +36,6 @@ function getSeededValue(index, min, max, precision = 4) {
 export default function Home() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({ container: containerRef });
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [cursorVariant, setCursorVariant] = useState("default");
 
   // Smooth spring animation for scroll
   const smoothProgress = useSpring(scrollYProgress, {
@@ -49,15 +46,6 @@ export default function Home() {
   // Scroll velocity for advanced effects
   const scrollVelocity = useVelocity(scrollYProgress);
   const velocityFactor = useTransform(scrollVelocity, [-0.5, 0.5], [0.2, 1.5]);
-
-  // Mouse tracking for interactive elements
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
   // Smooth scroll setup
   useEffect(() => {
@@ -76,15 +64,6 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="relative scroll-smooth">
-      {/* Custom cursor */}
-      <CustomCursor mousePosition={mousePosition} variant={cursorVariant} />
-
-      {/* Enhanced floating particles */}
-      <EnhancedParticles
-        mousePosition={mousePosition}
-        scrollProgress={smoothProgress}
-      />
-
       {/* Enhanced progress indicator */}
       <motion.div
         className="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 z-50 shadow-lg shadow-purple-500/20"
@@ -107,74 +86,13 @@ export default function Home() {
       <HeroSection />
 
       {/* Enhanced Essay Sections */}
-      <EnhancedThreadSection setCursorVariant={setCursorVariant} />
-      <EnhancedScreenSection setCursorVariant={setCursorVariant} />
-      <EnhancedMotionSection setCursorVariant={setCursorVariant} />
-      <EnhancedTrainingSection setCursorVariant={setCursorVariant} />
-      <EnhancedInspirationSection setCursorVariant={setCursorVariant} />
-      <EnhancedPhilosophySection setCursorVariant={setCursorVariant} />
-      <EnhancedConclusionSection setCursorVariant={setCursorVariant} />
-    </div>
-  );
-}
-
-// Simplified cursor component (much lighter)
-function CustomCursor({ mousePosition, variant }) {
-  return (
-    <motion.div
-      className="fixed w-3 h-3 rounded-full pointer-events-none z-50 hidden md:block bg-white/60 mix-blend-difference"
-      style={{
-        left: mousePosition.x - 6,
-        top: mousePosition.y - 6,
-      }}
-      animate={{
-        scale: variant === "text" ? 1.5 : 1,
-      }}
-      transition={{
-        duration: 0.2,
-        ease: "easeOut",
-      }}
-    />
-  );
-}
-
-// Optimized particles (reduced count and simplified animations)
-function EnhancedParticles({ mousePosition, scrollProgress }) {
-  const particles = Array.from({ length: 6 }, (_, i) => i); // Reduced from 20 to 6
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-10">
-      {particles.map((particle) => {
-        const angle = (particle / particles.length) * Math.PI * 2;
-        const radius = 60; // Simplified radius
-
-        return (
-          <motion.div
-            key={particle}
-            className="absolute w-2 h-2 rounded-full"
-            style={{
-              backgroundColor:
-                particle % 3 === 0
-                  ? "rgba(139, 92, 246, 0.3)"
-                  : particle % 3 === 1
-                  ? "rgba(236, 72, 153, 0.3)"
-                  : "rgba(59, 130, 246, 0.3)",
-              x: mousePosition.x + Math.cos(angle) * radius,
-              y: mousePosition.y + Math.sin(angle) * radius,
-              opacity: 0.4,
-            }}
-            animate={{
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: particle * 0.3,
-            }}
-          />
-        );
-      })}
+      <EnhancedThreadSection />
+      <EnhancedScreenSection />
+      <EnhancedMotionSection />
+      <EnhancedTrainingSection />
+      <EnhancedInspirationSection />
+      <EnhancedPhilosophySection />
+      <EnhancedConclusionSection />
     </div>
   );
 }
@@ -267,7 +185,7 @@ function ThreadBackground() {
 }
 
 // Enhanced Threading Section with advanced scroll animations
-function EnhancedThreadSection({ setCursorVariant }) {
+function EnhancedThreadSection() {
   const sectionRef = useRef(null);
   const textRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -279,11 +197,6 @@ function EnhancedThreadSection({ setCursorVariant }) {
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["-50%", "50%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
-  const scale = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [0.8, 1, 1, 1.1]
-  );
 
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
@@ -304,15 +217,10 @@ function EnhancedThreadSection({ setCursorVariant }) {
 
         <motion.div
           className="max-w-4xl mx-auto relative z-10"
-          style={{ opacity, scale, y: textY }}
+          style={{ opacity, y: textY }}
         >
           {/* Dynamic text with word-by-word reveal */}
-          <div
-            ref={textRef}
-            className="relative z-20"
-            onMouseEnter={() => setCursorVariant("text")}
-            onMouseLeave={() => setCursorVariant("default")}
-          >
+          <div ref={textRef} className="relative z-20">
             <ScrollTriggeredText
               text="Art threads through my life like a quiet melody — sometimes front and center, often just humming under everything I do."
               delay={0}
@@ -580,7 +488,6 @@ function ThreadingBackground() {
             transform: `rotate(${getSeededValue(i * 4 + 3, 0, 180)}deg)`,
           }}
           animate={{
-            scaleX: [1, 1.5, 1],
             opacity: [0.3, 0.7, 0.3],
           }}
           transition={{
@@ -742,57 +649,8 @@ function MusicalElements() {
   );
 }
 
-// Minimal Text Component with Subtle Effects
-function EnhancedText({ text, variant = "default" }) {
-  if (variant === "cursive") {
-    return (
-      <span className="font-serif italic text-black relative inline-block">
-        {text}
-      </span>
-    );
-  }
-
-  if (variant === "glow") {
-    return (
-      <span className="relative inline-block">
-        <span className="text-black font-medium">{text}</span>
-      </span>
-    );
-  }
-
-  if (variant === "shimmer") {
-    return (
-      <span className="relative inline-block group cursor-default">
-        <span className="text-black font-medium border-b border-gray-200 border-dotted group-hover:border-gray-400 transition-colors duration-300">
-          {text}
-        </span>
-      </span>
-    );
-  }
-
-  if (variant === "elegant") {
-    return (
-      <span className="relative inline-block group cursor-default">
-        <span className="text-black font-medium">{text}</span>
-        <div className="absolute -bottom-0.5 left-0 w-0 h-px bg-black group-hover:w-full transition-all duration-500 ease-out"></div>
-      </span>
-    );
-  }
-
-  if (variant === "truth") {
-    return (
-      <span className="relative inline-block">
-        <span className="text-black font-light tracking-wide">{text}</span>
-        <div className="absolute inset-0 bg-gray-100 opacity-0 hover:opacity-20 transition-opacity duration-300 rounded-sm -mx-1"></div>
-      </span>
-    );
-  }
-
-  return <span className="text-black">{text}</span>;
-}
-
 // Clean Screen Section (reverted to simpler version)
-function EnhancedScreenSection({ setCursorVariant }) {
+function EnhancedScreenSection() {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-slate-900 to-gray-900">
       <motion.div
@@ -812,8 +670,6 @@ function EnhancedScreenSection({ setCursorVariant }) {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.2 }}
           viewport={{ once: true }}
-          onMouseEnter={() => setCursorVariant("text")}
-          onMouseLeave={() => setCursorVariant("default")}
         >
           On the screen, art shows up as composition and timing. A web page is a
           blank stage where text, image, and motion must share the spotlight
@@ -916,7 +772,7 @@ function FlowingElements({ scrollProgress }) {
 }
 
 // Enhanced Motion Section with dynamic particles
-function EnhancedMotionSection({ setCursorVariant }) {
+function EnhancedMotionSection() {
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -930,10 +786,7 @@ function EnhancedMotionSection({ setCursorVariant }) {
           <DynamicDancingElements scrollProgress={scrollYProgress} />
           <FlowingElements scrollProgress={scrollYProgress} />
 
-          <div
-            onMouseEnter={() => setCursorVariant("text")}
-            onMouseLeave={() => setCursorVariant("default")}
-          >
+          <div>
             <ScrollTriggeredText
               text="Motion, to me, is the softest form of storytelling. A hover that brightens slightly, a panel that slides in with a gentle pause — these are tiny performances."
               delay={0}
@@ -951,7 +804,7 @@ function EnhancedMotionSection({ setCursorVariant }) {
 }
 
 // Training Section with better text contrast
-function EnhancedTrainingSection({ setCursorVariant }) {
+function EnhancedTrainingSection() {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-red-900 to-orange-900">
       <motion.div
@@ -971,8 +824,6 @@ function EnhancedTrainingSection({ setCursorVariant }) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2 }}
           viewport={{ once: true }}
-          onMouseEnter={() => setCursorVariant("text")}
-          onMouseLeave={() => setCursorVariant("default")}
         >
           Off-screen, working out trains that same sensibility. Lifting slowly,
           focusing on form, noticing the subtle shifts in tension — it's
@@ -987,7 +838,7 @@ function EnhancedTrainingSection({ setCursorVariant }) {
 }
 
 // Clean Inspiration Section
-function EnhancedInspirationSection({ setCursorVariant }) {
+function EnhancedInspirationSection() {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-emerald-50 to-teal-50">
       <motion.div
@@ -1008,8 +859,6 @@ function EnhancedInspirationSection({ setCursorVariant }) {
           whileInView={{ opacity: 1, rotateX: 0 }}
           transition={{ duration: 1.2 }}
           viewport={{ once: true }}
-          onMouseEnter={() => setCursorVariant("text")}
-          onMouseLeave={() => setCursorVariant("default")}
         >
           Appreciating other art keeps my visual language fresh. I borrow habits
           from everywhere I look: the hush of a film score helps me choose
@@ -1024,7 +873,7 @@ function EnhancedInspirationSection({ setCursorVariant }) {
 }
 
 // Enhanced Philosophy Section with minimalist elegance
-function EnhancedPhilosophySection({ setCursorVariant }) {
+function EnhancedPhilosophySection() {
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -1038,10 +887,7 @@ function EnhancedPhilosophySection({ setCursorVariant }) {
           <ElegantMinimalShapes scrollProgress={scrollYProgress} />
           <PhilosophyOrbs scrollProgress={scrollYProgress} />
 
-          <div
-            onMouseEnter={() => setCursorVariant("text")}
-            onMouseLeave={() => setCursorVariant("default")}
-          >
+          <div>
             <ScrollTriggeredText
               text="What I build aims to feel human rather than flashy. I prefer work that rewards curiosity: interfaces that respond with thoughtful micro-moments, visuals that respect a viewer's attention."
               delay={0}
@@ -1059,7 +905,7 @@ function EnhancedPhilosophySection({ setCursorVariant }) {
 }
 
 // Clean Conclusion Section
-function EnhancedConclusionSection({ setCursorVariant }) {
+function EnhancedConclusionSection() {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
       <motion.div
@@ -1080,8 +926,6 @@ function EnhancedConclusionSection({ setCursorVariant }) {
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2 }}
           viewport={{ once: true }}
-          onMouseEnter={() => setCursorVariant("text")}
-          onMouseLeave={() => setCursorVariant("default")}
         >
           Mostly, art is practice. It's the steady repetition of small,
           thoughtful choices — the same patience I bring to a controlled set in
