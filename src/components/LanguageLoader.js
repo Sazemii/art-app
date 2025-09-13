@@ -109,6 +109,12 @@ const LanguageLoader = ({ onComplete }) => {
     return () => clearTimeout(timer);
   }, [currentIndex, artTranslations.length, onComplete]);
 
+  // Get current translation safely
+  const currentTranslation =
+    currentIndex < artTranslations.length
+      ? artTranslations[currentIndex]
+      : null;
+
   if (!isVisible) {
     return (
       <motion.div
@@ -186,14 +192,14 @@ const LanguageLoader = ({ onComplete }) => {
         {/* Language Text Display */}
         <div className="relative h-32 flex items-center justify-center">
           <AnimatePresence mode="wait">
-            {currentIndex < artTranslations.length && (
+            {currentTranslation && (
               <motion.div
                 key={currentIndex}
                 className="absolute"
                 initial={{
                   opacity: 0,
-                  scale: artTranslations[currentIndex].isSpecial ? 0.8 : 1,
-                  y: artTranslations[currentIndex].isSpecial ? 20 : 0,
+                  scale: currentTranslation.isSpecial ? 0.8 : 1,
+                  y: currentTranslation.isSpecial ? 20 : 0,
                 }}
                 animate={{
                   opacity: 1,
@@ -202,33 +208,31 @@ const LanguageLoader = ({ onComplete }) => {
                 }}
                 exit={{
                   opacity: 0,
-                  scale: artTranslations[currentIndex].isSpecial ? 1.1 : 1,
+                  scale: currentTranslation.isSpecial ? 1.1 : 1,
                 }}
                 transition={{
-                  duration: artTranslations[currentIndex].isSpecial
+                  duration: currentTranslation.isSpecial
                     ? 1 // Much slower, more dramatic entrance for "sining"
                     : 0.08, // Faster for other words to match acceleration
-                  ease: artTranslations[currentIndex].isSpecial
-                    ? "easeOut"
-                    : "easeInOut",
+                  ease: currentTranslation.isSpecial ? "easeOut" : "easeInOut",
                 }}
               >
                 {/* Enhanced font stack for special characters */}
                 <h1
                   className={`text-6xl md:text-8xl font-light tracking-wider drop-shadow-sm font-inter ${
-                    artTranslations[currentIndex].isSpecial
+                    currentTranslation.isSpecial
                       ? "text-gray-900" // Special color for "sining"
                       : "text-gray-900"
                   }`}
                 >
-                  {artTranslations[currentIndex].text}
+                  {currentTranslation.text}
                 </h1>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Language Label */}
+        {/* Language Label - Fixed to use the same currentTranslation */}
         <motion.div
           className="mt-8"
           initial={{ opacity: 0 }}
@@ -236,7 +240,7 @@ const LanguageLoader = ({ onComplete }) => {
           transition={{ delay: 0.5 }}
         >
           <AnimatePresence mode="wait">
-            {currentIndex < artTranslations.length && (
+            {currentTranslation && (
               <motion.p
                 key={`lang-${currentIndex}`}
                 className="text-sm text-gray-700 tracking-widest uppercase font-semibold font-inter"
@@ -245,7 +249,7 @@ const LanguageLoader = ({ onComplete }) => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
               >
-                {artTranslations[currentIndex].lang}
+                {currentTranslation.lang}
               </motion.p>
             )}
           </AnimatePresence>
