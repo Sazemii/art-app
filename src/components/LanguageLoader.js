@@ -80,9 +80,9 @@ const LanguageLoader = ({ onComplete }) => {
     // Calculate delay with acceleration curve
     let currentDelay;
 
-    if (currentIndex < 29) {
-      // Accelerating progression - starts slow, gets faster
-      const totalItems = 29;
+    if (currentIndex < artTranslations.length - 1) {
+      // Accelerating progression - starts slow, gets faster (all items except the last "sining")
+      const totalItems = artTranslations.length - 1; // Exclude the last item
       const progress = currentIndex / totalItems;
 
       // Exponential acceleration curve
@@ -93,8 +93,8 @@ const LanguageLoader = ({ onComplete }) => {
 
       currentDelay = baseDelay * accelerationFactor + minDelay + exitTime;
     } else {
-      // "sining" - shortened display time and trigger zoom effect
-      currentDelay = 2000; // Reduced from 3500 to 2000
+      // Last item "sining" - shortened display time and trigger zoom effect
+      currentDelay = 2000; // Display time for "sining"
 
       // Start zoom effect after sining appears
       setTimeout(() => {
