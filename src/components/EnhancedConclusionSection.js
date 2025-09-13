@@ -8,6 +8,9 @@ import Image from "next/image";
 // Photo Gallery Component
 function PhotoGallery() {
   const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [imageError, setImageError] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  
   const photos = [
     { src: "/img/1.jpg", alt: "Art piece 1" },
     { src: "/img/2.jpg", alt: "Art piece 2" },
@@ -15,122 +18,155 @@ function PhotoGallery() {
     { src: "/img/4.jpg", alt: "Art piece 4" },
   ];
 
-  const nextPhoto = () => {
+  const nextPhoto = (e) => {
+    e?.stopPropagation();
     setCurrentPhoto((prev) => (prev + 1) % photos.length);
+    setImageError(false);
   };
 
-  const prevPhoto = () => {
+  const prevPhoto = (e) => {
+    e?.stopPropagation();
     setCurrentPhoto((prev) => (prev - 1 + photos.length) % photos.length);
+    setImageError(false);
+  };
+
+  const openFullscreen = () => {
+    setIsFullscreen(true);
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreen(false);
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto">
-      <div className="relative h-96 rounded-2xl overflow-hidden bg-gray-900/20 backdrop-blur-sm">
-        <motion.div
-          key={currentPhoto}
-          className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.5 }}
+    <>
+      <div className="relative w-full max-w-2xl mx-auto">
+        <div 
+          className="relative h-96 rounded-2xl overflow-hidden bg-gray-900/50 backdrop-blur-sm border border-white/10 cursor-pointer"
+          onClick={openFullscreen}
         >
-          <Image
-            src={photos[currentPhoto].src}
-            alt={photos[currentPhoto].alt}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-        </motion.div>
-        
-        {/* Navigation Arrows */}
-        <button
-          onClick={prevPhoto}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-all duration-200"
-        >
-          ←
-        </button>
-        <button
-          onClick={nextPhoto}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-all duration-200"
-        >
-          →
-        </button>
-      </div>
-      
-      {/* Photo Indicators */}
-      <div className="flex justify-center mt-4 space-x-2">
-        {photos.map((_, index) => (
+          {!imageError ? (
+            <Image
+              key={currentPhoto}
+              src={photos[currentPhoto].src}
+              alt={photos[currentPhoto].alt}
+              fill
+              className="object-cover transition-opacity duration-500"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onError={() => setImageError(true)}
+              priority={currentPhoto === 0}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-white/60">
+              <div className="text-center">
+                <div className="text-4xl mb-2">🖼️</div>
+                <p className="text-sm">Image loading...</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Navigation Arrows */}
           <button
-            key={index}
-            onClick={() => setCurrentPhoto(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-200 ${
-              index === currentPhoto ? "bg-white" : "bg-white/30"
-            }`}
-          />
-        ))}
+            onClick={prevPhoto}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-all duration-200 z-10"
+          >
+            ←
+          </button>
+          <button
+            onClick={nextPhoto}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-all duration-200 z-10"
+          >
+            →
+          </button>
+
+          {/* Click to expand hint */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur-sm px-3 py-1 rounded-full text-white/80 text-xs">
+            Click to expand
+          </div>
+        </div>
+        
+        {/* Photo Indicators */}
+        <div className="flex justify-center mt-4 space-x-2">
+          {photos.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setCurrentPhoto(index);
+                setImageError(false);
+              }}
+              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                index === currentPhoto ? "bg-white" : "bg-white/30"
+              }`}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Fullscreen Modal */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center p-4">
+            {/* Close button */}
+            <button
+              onClick={closeFullscreen}
+              className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-20"
+            >
+              ✕
+            </button>
+            
+            {/* Full image */}
+            <div className="relative max-w-6xl max-h-full w-full h-full flex items-center justify-center">
+              <Image
+                key={currentPhoto}
+                src={photos[currentPhoto].src}
+                alt={photos[currentPhoto].alt}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+            </div>
+            
+            {/* Navigation in fullscreen */}
+            <button
+              onClick={prevPhoto}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-20"
+            >
+              ←
+            </button>
+            <button
+              onClick={nextPhoto}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-20"
+            >
+              →
+            </button>
+
+            {/* Photo indicators in fullscreen */}
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+              {photos.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPhoto(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                    index === currentPhoto ? "bg-white" : "bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-// Seeded random function for consistent positioning
-function seededRandom(seed) {
-  const a = 1664525;
-  const c = 1013904223;
-  const m = Math.pow(2, 32);
-  const value = (a * seed + c) % m;
-  return value / m;
-}
-
-// Floating Background Elements
-function FloatingBackground() {
-  const elements = Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    x: seededRandom(i * 123) * 100,
-    y: seededRandom(i * 456) * 100,
-    size: 20 + seededRandom(i * 789) * 60,
-    duration: 10 + seededRandom(i * 321) * 20,
-    delay: seededRandom(i * 654) * 5,
-  }));
-
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {elements.map((element) => (
-        <motion.div
-          key={element.id}
-          className="absolute rounded-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm"
-          style={{
-            left: `${element.x}%`,
-            top: `${element.y}%`,
-            width: element.size,
-            height: element.size,
-          }}
-          animate={{
-            y: [-20, 20, -20],
-            x: [-10, 10, -10],
-            opacity: [0.3, 0.7, 0.3],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: element.duration,
-            delay: element.delay,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Scrolling Text Effects
+// Scrolling Text Effects for "Art is practice"
 function ScrollingTextEffect({ scrollProgress }) {
-  const textInstances = Array.from({ length: 8 }, (_, i) => ({
+  const textInstances = Array.from({ length: 6 }, (_, i) => ({
     id: i,
-    opacity: Math.max(0, Math.min(1, scrollProgress * 2 - i * 0.15)),
+    opacity: Math.max(0, Math.min(0.4, scrollProgress * 1.5 - i * 0.2)),
     scale: 1 + (scrollProgress * 0.3) * (1 - i * 0.1),
-    y: -i * 40,
+    y: -i * 50,
   }));
 
   return (
@@ -138,11 +174,11 @@ function ScrollingTextEffect({ scrollProgress }) {
       {textInstances.map((instance, index) => (
         <motion.div
           key={instance.id}
-          className="absolute text-4xl md:text-6xl font-light text-white/20"
+          className="absolute text-3xl md:text-5xl font-light text-white/20"
           style={{
             opacity: instance.opacity,
             transform: `scale(${instance.scale}) translateY(${instance.y}px)`,
-            zIndex: 10 - index,
+            zIndex: 5 - index,
           }}
         >
           Art is practice. Practice is art.
@@ -157,7 +193,6 @@ function EnhancedConclusionSection({ setIsHovering }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [showPrompt, setShowPrompt] = useState(true);
   const [showEssay, setShowEssay] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -171,17 +206,15 @@ function EnhancedConclusionSection({ setIsHovering }) {
   
   // Custom scroll effect for text multiplication
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || !showEssay) return;
     
     let cleanup = null;
     
     const setupScrollListener = () => {
-      if (!scrollTextRef.current) return;
-      
       const handleScroll = () => {
-        const element = scrollTextRef.current;
-        if (!element) return;
+        if (!scrollTextRef.current) return;
         
+        const element = scrollTextRef.current;
         const rect = element.getBoundingClientRect();
         const windowHeight = window.innerHeight;
         
@@ -191,11 +224,6 @@ function EnhancedConclusionSection({ setIsHovering }) {
         }
         
         setScrollProgress(progress);
-        
-        // Show gallery when scroll progress is high
-        if (progress > 0.8 && !showGallery) {
-          setShowGallery(true);
-        }
       };
       
       window.addEventListener('scroll', handleScroll);
@@ -210,7 +238,7 @@ function EnhancedConclusionSection({ setIsHovering }) {
       clearTimeout(timer);
       if (cleanup) cleanup();
     };
-  }, [isMounted, showEssay, showGallery]);
+  }, [isMounted, showEssay]);
 
   // Sequential text steps
   const textSteps = [
@@ -281,7 +309,7 @@ function EnhancedConclusionSection({ setIsHovering }) {
     <SectionWrapper bgColor="bg-black">
       <motion.div
         ref={sectionRef}
-        className="relative"
+        className="max-w-4xl mx-auto relative min-h-screen"
         initial={{ opacity: 0 }}
         whileInView={{
           opacity: 1,
@@ -297,13 +325,17 @@ function EnhancedConclusionSection({ setIsHovering }) {
           cursor: showPrompt ? "pointer" : "default",
         }}
       >
-        {/* Floating Background */}
-        <FloatingBackground />
+        {/* Background gradients */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-gray-900/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-gray-800/20 to-transparent" />
+          <div className="absolute top-1/2 left-0 w-full h-1/4 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+        </div>
 
         {/* Cinematic Introduction */}
         {showPrompt && isInView && (
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-black min-h-screen"
+            className="absolute inset-0 flex flex-col items-center justify-center z-50 bg-black"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -364,129 +396,145 @@ function EnhancedConclusionSection({ setIsHovering }) {
 
         {/* Essay Content */}
         {showEssay && (
-          <motion.div
-            className="py-20 min-h-screen flex flex-col justify-center max-w-4xl mx-auto relative z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
-          >
-            <motion.p
-              className="text-2xl md:text-3xl leading-relaxed text-white font-light mb-20 px-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.5 }}
-            >
-              Mostly, art is practice. It's the steady repetition of small,
-              thoughtful choices, the same patience I bring to a controlled set in
-              the gym. Each humble prototype, edit, and revision sharpens my sense
-              of what feels right. I'm still learning, but I keep showing up.
-              Because in the end, making art, whether with code, breath, or muscle,
-              is a habit that teaches me how to make things better for other people,
-              and that's the part I care about most.
-            </motion.p>
-
-            {/* Scrolling Text Effects Section */}
+          <>
             <motion.div
-              ref={scrollTextRef}
-              className="relative min-h-screen flex items-center justify-center"
+              className="py-20 min-h-screen flex flex-col justify-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 1 }}
+              transition={{ duration: 1, delay: 0.3 }}
             >
-              <ScrollingTextEffect scrollProgress={scrollProgress} />
-              
-              {/* Main prominent text */}
-              <motion.div
-                className="relative z-20 text-center"
-                style={{
-                  transform: `scale(${1 + scrollProgress * 0.2})`,
-                }}
+              <motion.p
+                className="text-2xl md:text-3xl leading-relaxed text-white font-light mb-20"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5 }}
               >
-                <motion.div
-                  className="text-4xl md:text-6xl font-light text-white tracking-wider"
-                  animate={{
-                    textShadow: [
-                      "0 0 20px rgba(255,255,255,0.5)",
-                      "0 0 40px rgba(255,255,255,0.8)",
-                      "0 0 20px rgba(255,255,255,0.5)"
-                    ]
-                  }}
-                  transition={{
-                    textShadow: {
-                      repeat: Infinity,
-                      duration: 3,
-                      ease: "easeInOut"
-                    }
-                  }}
-                >
-                  Art is practice. Practice is art.
-                </motion.div>
+                Mostly, art is practice. It's the steady repetition of small,
+                thoughtful choices, the same patience I bring to a controlled set in
+                the gym. Each humble prototype, edit, and revision sharpens my sense
+                of what feels right. I'm still learning, but I keep showing up.
+                Because in the end, making art, whether with code, breath, or muscle,
+                is a habit that teaches me how to make things better for other people,
+                and that's the part I care about most.
+              </motion.p>
+
+              {/* Scrolling Text Effects Section */}
+              <motion.div
+                ref={scrollTextRef}
+                className="relative min-h-screen flex items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 1 }}
+              >
+                {/* Radial gradient background for text section */}
+                <div className="absolute inset-0 bg-gradient-radial from-white/5 via-transparent to-transparent" />
                 
-                {/* Signature */}
+                <ScrollingTextEffect scrollProgress={scrollProgress} />
+                
+                {/* Main prominent text */}
                 <motion.div
-                  className="mt-8 text-xl text-white/60 font-light italic"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: scrollProgress > 0.7 ? 1 : 0,
-                    y: scrollProgress > 0.7 ? 0 : 20
+                  className="relative z-20 text-center"
+                  style={{
+                    transform: `scale(${1 + scrollProgress * 0.2})`,
                   }}
-                  transition={{ duration: 0.8 }}
                 >
-                  ~ Carl
+                  <motion.div
+                    className="text-4xl md:text-6xl font-light text-white tracking-wider"
+                    animate={{
+                      textShadow: [
+                        "0 0 20px rgba(255,255,255,0.5)",
+                        "0 0 40px rgba(255,255,255,0.8)",
+                        "0 0 20px rgba(255,255,255,0.5)"
+                      ]
+                    }}
+                    transition={{
+                      textShadow: {
+                        repeat: Infinity,
+                        duration: 3,
+                        ease: "easeInOut"
+                      }
+                    }}
+                  >
+                    Art is practice. Practice is art.
+                  </motion.div>
+                  
+                  {/* Signature */}
+                  <motion.div
+                    className="mt-8 text-xl text-white/60 font-light italic"
+                    initial={{ opacity: 0 }}
+                    animate={{ 
+                      opacity: scrollProgress > 0.5 ? 1 : 0,
+                      y: scrollProgress > 0.5 ? 0 : 20
+                    }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    ~ Carl
+                  </motion.div>
                 </motion.div>
               </motion.div>
             </motion.div>
 
             {/* Photo Gallery Section */}
-            {showGallery && (
-              <motion.div
-                className="py-20 px-8"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.5 }}
+            <motion.div
+              className="py-20 px-8 relative"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.3 }}
+              viewport={{ once: true }}
+            >
+              {/* Subtle gradient background for gallery */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/10 to-transparent rounded-3xl" />
+              
+              <motion.h3
+                className="text-3xl md:text-4xl font-light text-white text-center mb-12 relative z-10"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                viewport={{ once: true }}
               >
-                <motion.h3
-                  className="text-3xl md:text-4xl font-light text-white text-center mb-12"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
-                >
-                  Visual Expressions
-                </motion.h3>
+                Visual Expressions
+              </motion.h3>
+              <div className="relative z-10">
                 <PhotoGallery />
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
 
             {/* Portfolio Link Section */}
-            {showGallery && (
-              <motion.div
-                className="py-20 px-8 text-center"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 1 }}
+            <motion.div
+              className="py-20 px-8 text-center relative"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              viewport={{ once: true }}
+            >
+              {/* Subtle gradient background */}
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 via-transparent to-transparent rounded-3xl" />
+              
+              <motion.p
+                className="text-xl text-white/80 mb-8 font-light relative z-10"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+                viewport={{ once: true }}
               >
-                <motion.p
-                  className="text-xl text-white/80 mb-8 font-light"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
-                >
-                  More of my Works:
-                </motion.p>
-                <motion.a
-                  href="https://cosmic-portfolio-xi.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full text-white font-light text-lg transition-all duration-300 hover:scale-105"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Explore Portfolio →
-                </motion.a>
-              </motion.div>
-            )}
-          </motion.div>
+                More of my Works:
+              </motion.p>
+              <motion.button
+                onClick={() => window.open("https://cosmic-portfolio-xi.vercel.app/", "_blank", "noopener,noreferrer")}
+                className="inline-flex items-center justify-center px-8 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full text-white font-light text-lg transition-all duration-300 hover:scale-105 relative z-10 cursor-pointer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Explore Other Works →
+              </motion.button>
+            </motion.div>
+          </>
         )}
+
+        {/* Simple background texture */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:100px_100px]" />
+        </div>
       </motion.div>
     </SectionWrapper>
   );
