@@ -6,6 +6,7 @@ import {
   useTransform,
   useSpring,
   useVelocity,
+  useMotionValue,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
@@ -37,6 +38,11 @@ export default function Home() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({ container: containerRef });
 
+  // Cursor tracking with motion values for optimal performance
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const [isHovering, setIsHovering] = useState(false);
+
   // Smooth spring animation for scroll
   const smoothProgress = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -46,6 +52,17 @@ export default function Home() {
   // Scroll velocity for advanced effects
   const scrollVelocity = useVelocity(scrollYProgress);
   const velocityFactor = useTransform(scrollVelocity, [-0.5, 0.5], [0.2, 1.5]);
+
+  // High-performance mouse tracking
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mouseX, mouseY]);
 
   // Smooth scroll setup
   useEffect(() => {
@@ -63,7 +80,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative scroll-smooth">
+    <div ref={containerRef} className="relative scroll-smooth cursor-none">
+      {/* High-Performance Blended Cursor */}
+      <BlendedCursor mouseX={mouseX} mouseY={mouseY} isHovering={isHovering} />
+
       {/* Enhanced progress indicator */}
       <motion.div
         className="fixed top-0 left-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 z-50 shadow-lg shadow-purple-500/20"
@@ -86,14 +106,76 @@ export default function Home() {
       <HeroSection />
 
       {/* Enhanced Essay Sections */}
-      <EnhancedThreadSection />
-      <EnhancedScreenSection />
-      <EnhancedMotionSection />
-      <EnhancedTrainingSection />
-      <EnhancedInspirationSection />
-      <EnhancedPhilosophySection />
-      <EnhancedConclusionSection />
+      <EnhancedThreadSection setIsHovering={setIsHovering} />
+      <EnhancedScreenSection setIsHovering={setIsHovering} />
+      <EnhancedMotionSection setIsHovering={setIsHovering} />
+      <EnhancedTrainingSection setIsHovering={setIsHovering} />
+      <EnhancedInspirationSection setIsHovering={setIsHovering} />
+      <EnhancedPhilosophySection setIsHovering={setIsHovering} />
+      <EnhancedConclusionSection setIsHovering={setIsHovering} />
     </div>
+  );
+}
+
+// High-Performance Blended Cursor with Mask Effect
+function BlendedCursor({ mouseX, mouseY, isHovering }) {
+  const cursorSize = useSpring(isHovering ? 80 : 40, {
+    stiffness: 500,
+    damping: 30,
+  });
+
+  return (
+    <>
+      {/* Main cursor circle with blend mode */}
+      <motion.div
+        className="fixed pointer-events-none z-50 hidden md:block"
+        style={{
+          left: mouseX,
+          top: mouseY,
+          width: cursorSize,
+          height: cursorSize,
+          x: "-50%",
+          y: "-50%",
+          backgroundColor: "#ffffff",
+          borderRadius: "50%",
+          mixBlendMode: "difference",
+          willChange: "transform",
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 1000,
+          damping: 35,
+          mass: 0.5,
+        }}
+      />
+
+      {/* Outer ring for enhanced effect */}
+      <motion.div
+        className="fixed pointer-events-none z-40 hidden md:block border-2 border-white/30"
+        style={{
+          left: mouseX,
+          top: mouseY,
+          width: useSpring(isHovering ? 120 : 60, {
+            stiffness: 400,
+            damping: 30,
+          }),
+          height: useSpring(isHovering ? 120 : 60, {
+            stiffness: 400,
+            damping: 30,
+          }),
+          x: "-50%",
+          y: "-50%",
+          borderRadius: "50%",
+          opacity: 0.6,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 800,
+          damping: 30,
+          mass: 0.3,
+        }}
+      />
+    </>
   );
 }
 
@@ -185,7 +267,7 @@ function ThreadBackground() {
 }
 
 // Enhanced Threading Section with advanced scroll animations
-function EnhancedThreadSection() {
+function EnhancedThreadSection({ setIsHovering }) {
   const sectionRef = useRef(null);
   const textRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -220,7 +302,12 @@ function EnhancedThreadSection() {
           style={{ opacity, y: textY }}
         >
           {/* Dynamic text with word-by-word reveal */}
-          <div ref={textRef} className="relative z-20">
+          <div
+            ref={textRef}
+            className="relative z-20"
+            onMouseEnter={() => setIsHovering && setIsHovering(true)}
+            onMouseLeave={() => setIsHovering && setIsHovering(false)}
+          >
             <ScrollTriggeredText
               text="Art threads through my life like a quiet melody — sometimes front and center, often just humming under everything I do."
               delay={0}
@@ -650,7 +737,7 @@ function MusicalElements() {
 }
 
 // Clean Screen Section (reverted to simpler version)
-function EnhancedScreenSection() {
+function EnhancedScreenSection({ setIsHovering }) {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-slate-900 to-gray-900">
       <motion.div
@@ -772,7 +859,7 @@ function FlowingElements({ scrollProgress }) {
 }
 
 // Enhanced Motion Section with dynamic particles
-function EnhancedMotionSection() {
+function EnhancedMotionSection({ setIsHovering }) {
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -804,7 +891,7 @@ function EnhancedMotionSection() {
 }
 
 // Training Section with better text contrast
-function EnhancedTrainingSection() {
+function EnhancedTrainingSection({ setIsHovering }) {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-red-900 to-orange-900">
       <motion.div
@@ -838,7 +925,7 @@ function EnhancedTrainingSection() {
 }
 
 // Clean Inspiration Section
-function EnhancedInspirationSection() {
+function EnhancedInspirationSection({ setIsHovering }) {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-emerald-50 to-teal-50">
       <motion.div
@@ -873,7 +960,7 @@ function EnhancedInspirationSection() {
 }
 
 // Enhanced Philosophy Section with minimalist elegance
-function EnhancedPhilosophySection() {
+function EnhancedPhilosophySection({ setIsHovering }) {
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -905,7 +992,7 @@ function EnhancedPhilosophySection() {
 }
 
 // Clean Conclusion Section
-function EnhancedConclusionSection() {
+function EnhancedConclusionSection({ setIsHovering }) {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900">
       <motion.div

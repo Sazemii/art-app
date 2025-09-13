@@ -33,6 +33,7 @@ body {
     "Segoe UI", "Roboto", sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
+  cursor: none; /* Hide default cursor for custom cursor */
 }
 
 /* Enhanced scroll-snap for sections */
