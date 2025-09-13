@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { SectionWrapper } from "./shared";
 import Image from "next/image";
 
@@ -18,25 +18,58 @@ function PhotoGallery() {
     { src: "/img/4.jpg", alt: "Art piece 4" },
   ];
 
-  const nextPhoto = (e) => {
+  const nextPhoto = useCallback((e) => {
     e?.stopPropagation();
     setCurrentPhoto((prev) => (prev + 1) % photos.length);
     setImageError(false);
-  };
+  }, [photos.length]);
 
-  const prevPhoto = (e) => {
+  const prevPhoto = useCallback((e) => {
     e?.stopPropagation();
     setCurrentPhoto((prev) => (prev - 1 + photos.length) % photos.length);
     setImageError(false);
-  };
+  }, [photos.length]);
 
-  const openFullscreen = () => {
+  const openFullscreen = useCallback(() => {
     setIsFullscreen(true);
-  };
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+  }, []);
 
-  const closeFullscreen = () => {
+  const closeFullscreen = useCallback(() => {
     setIsFullscreen(false);
-  };
+    // Restore background scrolling
+    document.body.style.overflow = 'unset';
+  }, []);
+
+  // Keyboard navigation for fullscreen
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const handleKeyPress = (e) => {
+      switch (e.key) {
+        case 'Escape':
+          closeFullscreen();
+          break;
+        case 'ArrowLeft':
+          prevPhoto();
+          break;
+        case 'ArrowRight':
+          nextPhoto();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isFullscreen, prevPhoto, nextPhoto, closeFullscreen]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   return (
     <>
@@ -104,18 +137,18 @@ function PhotoGallery() {
 
       {/* Fullscreen Modal */}
       {isFullscreen && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0 z-[9999] bg-black/98 backdrop-blur-md flex items-center justify-center">
           <div className="relative w-full h-full flex items-center justify-center p-4">
             {/* Close button */}
             <button
               onClick={closeFullscreen}
-              className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-20"
+              className="absolute top-6 right-6 w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-all duration-200 z-[10000] border border-white/20"
             >
               ✕
             </button>
             
             {/* Full image */}
-            <div className="relative max-w-6xl max-h-full w-full h-full flex items-center justify-center">
+            <div className="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center z-[9999]">
               <Image
                 key={currentPhoto}
                 src={photos[currentPhoto].src}
@@ -130,28 +163,33 @@ function PhotoGallery() {
             {/* Navigation in fullscreen */}
             <button
               onClick={prevPhoto}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-20"
+              className="absolute left-6 top-1/2 transform -translate-y-1/2 w-14 h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-all duration-200 z-[10000] border border-white/20 text-xl"
             >
               ←
             </button>
             <button
               onClick={nextPhoto}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-all duration-200 z-20"
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 w-14 h-14 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-all duration-200 z-[10000] border border-white/20 text-xl"
             >
               →
             </button>
 
             {/* Photo indicators in fullscreen */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-[10000]">
               {photos.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentPhoto(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                    index === currentPhoto ? "bg-white" : "bg-white/40"
+                  className={`w-4 h-4 rounded-full transition-all duration-200 border border-white/30 ${
+                    index === currentPhoto ? "bg-white" : "bg-white/20 hover:bg-white/40"
                   }`}
                 />
               ))}
+            </div>
+
+            {/* Current photo indicator */}
+            <div className="absolute top-6 left-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-full text-white/80 text-sm z-[10000] border border-white/20">
+              {currentPhoto + 1} / {photos.length}
             </div>
           </div>
         </div>
@@ -403,26 +441,26 @@ function EnhancedConclusionSection({ setIsHovering }) {
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
             >
-              <motion.p
+        <motion.p
                 className="text-2xl md:text-3xl leading-relaxed text-white font-light mb-20"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5 }}
-              >
-                Mostly, art is practice. It's the steady repetition of small,
-                thoughtful choices, the same patience I bring to a controlled set in
-                the gym. Each humble prototype, edit, and revision sharpens my sense
-                of what feels right. I'm still learning, but I keep showing up.
+        >
+          Mostly, art is practice. It's the steady repetition of small,
+          thoughtful choices, the same patience I bring to a controlled set in
+          the gym. Each humble prototype, edit, and revision sharpens my sense
+          of what feels right. I'm still learning, but I keep showing up.
                 Because in the end, making art, whether with code, breath, or muscle,
-                is a habit that teaches me how to make things better for other people,
-                and that's the part I care about most.
-              </motion.p>
+          is a habit that teaches me how to make things better for other people,
+          and that's the part I care about most.
+        </motion.p>
 
               {/* Scrolling Text Effects Section */}
-              <motion.div
+        <motion.div
                 ref={scrollTextRef}
                 className="relative min-h-screen flex items-center justify-center"
-                initial={{ opacity: 0 }}
+          initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 1, delay: 1 }}
               >
@@ -437,8 +475,8 @@ function EnhancedConclusionSection({ setIsHovering }) {
                   style={{
                     transform: `scale(${1 + scrollProgress * 0.2})`,
                   }}
-                >
-                  <motion.div
+        >
+          <motion.div
                     className="text-4xl md:text-6xl font-light text-white tracking-wider"
                     animate={{
                       textShadow: [
@@ -454,9 +492,9 @@ function EnhancedConclusionSection({ setIsHovering }) {
                         ease: "easeInOut"
                       }
                     }}
-                  >
-                    Art is practice. Practice is art.
-                  </motion.div>
+          >
+            Art is practice. Practice is art.
+          </motion.div>
                   
                   {/* Signature */}
                   <motion.div
@@ -527,7 +565,7 @@ function EnhancedConclusionSection({ setIsHovering }) {
               >
                 Explore Other Works →
               </motion.button>
-            </motion.div>
+        </motion.div>
           </>
         )}
 
@@ -541,4 +579,3 @@ function EnhancedConclusionSection({ setIsHovering }) {
 }
 
 export default EnhancedConclusionSection;
-  
