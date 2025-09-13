@@ -588,27 +588,37 @@ function ThreadingBackground() {
   );
 }
 
-// Simplified text component (much lighter)
-function ScrollTriggeredText({ text, delay = 0 }) {
+// Enhanced scroll-triggered text component with staggered animations
+function ScrollTriggeredText({ text, delay = 0, className = "" }) {
   return (
     <motion.p
-      className="text-2xl md:text-3xl leading-relaxed text-black font-light mb-6"
-      initial={{ opacity: 0, y: 20 }}
+      className={`text-2xl md:text-3xl leading-relaxed text-black font-light mb-6 ${className}`}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay }}
-      viewport={{ once: true, margin: "-20%" }}
+      transition={{
+        duration: 1,
+        delay,
+        ease: "easeOut",
+      }}
+      viewport={{ once: true, margin: "-10%" }}
     >
       {text}
     </motion.p>
   );
 }
 
-// Simplified musical elements
+// Enhanced musical elements with smooth scroll-triggered animations
 function MorphingMusicalElements({ scrollProgress }) {
   const notes = ["♪", "♫", "♬", "♩"];
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-5 opacity-30">
+    <motion.div
+      className="absolute inset-0 pointer-events-none z-5 opacity-30"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 0.3 }}
+      transition={{ duration: 1.5, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-20%" }}
+    >
       {Array.from({ length: 4 }, (_, i) => (
         <motion.div
           key={i}
@@ -617,20 +627,28 @@ function MorphingMusicalElements({ scrollProgress }) {
             left: `${20 + i * 20}%`,
             top: `${30 + i * 15}%`,
           }}
+          initial={{ opacity: 0, scale: 0, rotate: -180 }}
+          whileInView={{
+            opacity: 1,
+            scale: 1,
+            rotate: 0,
+          }}
+          viewport={{ once: true, margin: "-10%" }}
           animate={{
             y: [-10, 10, -10],
             opacity: [0.3, 0.7, 0.3],
           }}
           transition={{
-            duration: 3,
-            repeat: Infinity,
-            delay: i * 0.5,
+            opacity: { duration: 1.2, delay: i * 0.2, ease: "easeOut" },
+            scale: { duration: 1.2, delay: i * 0.2, ease: "easeOut" },
+            rotate: { duration: 1.2, delay: i * 0.2, ease: "easeOut" },
+            y: { duration: 3, repeat: Infinity, delay: i * 0.5 },
           }}
         >
           {notes[i]}
         </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
@@ -718,15 +736,35 @@ function MusicalElements() {
             left: `${10 + i * 12}%`,
             top: `${20 + (i % 3) * 25}%`,
           }}
+          initial={{ opacity: 0, scale: 0, rotate: -90 }}
+          whileInView={{
+            opacity: 1,
+            scale: 1,
+            rotate: 0,
+          }}
+          viewport={{ once: true, margin: "-10%" }}
           animate={{
             y: [-10, 10, -10],
             rotate: [-5, 5, -5],
           }}
           transition={{
-            duration: 2 + getSeededValue(i + 100, 0, 1),
-            repeat: Infinity,
-            delay: i * 0.3,
-            ease: "easeInOut",
+            opacity: { duration: 0.8, delay: i * 0.1, ease: "easeOut" },
+            scale: { duration: 0.8, delay: i * 0.1, ease: "easeOut" },
+            rotate: {
+              initial: { duration: 0.8, delay: i * 0.1, ease: "easeOut" },
+              animate: {
+                duration: 2 + getSeededValue(i + 100, 0, 1),
+                repeat: Infinity,
+                delay: i * 0.3,
+                ease: "easeInOut",
+              },
+            },
+            y: {
+              duration: 2 + getSeededValue(i + 100, 0, 1),
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeInOut",
+            },
           }}
         >
           {notes[i % notes.length]}
@@ -771,12 +809,18 @@ function EnhancedScreenSection({ setIsHovering }) {
   );
 }
 
-// Dynamic Dancing Elements that respond to scroll
+// Enhanced Dynamic Dancing Elements with scroll-triggered entry animations
 function DynamicDancingElements({ scrollProgress }) {
   const elements = Array.from({ length: 6 }, (_, i) => i);
 
   return (
-    <div className="absolute inset-0 opacity-20">
+    <motion.div
+      className="absolute inset-0 opacity-20"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 0.2 }}
+      transition={{ duration: 1.5, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-20%" }}
+    >
       {elements.map((el) => {
         const scrollY = useTransform(scrollProgress, [0, 1], [0, -100]);
         const rotation = useTransform(
@@ -797,19 +841,36 @@ function DynamicDancingElements({ scrollProgress }) {
               rotate: rotation,
               scale: scale,
             }}
+            initial={{ opacity: 0, scale: 0, rotate: -180 }}
+            whileInView={{
+              opacity: 1,
+              scale: 1,
+              rotate: 0,
+            }}
+            viewport={{ once: true, margin: "-10%" }}
             animate={{
               y: [-30, 30, -30],
               x: [-15, 15, -15],
             }}
             transition={{
-              repeat: Infinity,
-              duration: 3 + el * 0.5,
-              ease: "easeInOut",
+              opacity: { duration: 1.2, delay: el * 0.1, ease: "easeOut" },
+              scale: { duration: 1.2, delay: el * 0.1, ease: "easeOut" },
+              rotate: { duration: 1.2, delay: el * 0.1, ease: "easeOut" },
+              y: {
+                repeat: Infinity,
+                duration: 3 + el * 0.5,
+                ease: "easeInOut",
+              },
+              x: {
+                repeat: Infinity,
+                duration: 3 + el * 0.5,
+                ease: "easeInOut",
+              },
             }}
           />
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 
@@ -869,11 +930,31 @@ function EnhancedMotionSection({ setIsHovering }) {
   return (
     <SectionWrapper bgColor="bg-gradient-to-br from-pink-50 to-orange-50">
       <div ref={sectionRef} className="relative w-full max-w-6xl mx-auto">
-        <motion.div className="max-w-4xl mx-auto">
-          <DynamicDancingElements scrollProgress={scrollYProgress} />
-          <FlowingElements scrollProgress={scrollYProgress} />
+        <motion.div
+          className="max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          viewport={{ once: true, margin: "-10%" }}
+        >
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 1.5, delay: 0.3 }}
+            viewport={{ once: true, margin: "-10%" }}
+          >
+            <DynamicDancingElements scrollProgress={scrollYProgress} />
+            <FlowingElements scrollProgress={scrollYProgress} />
+          </motion.div>
 
-          <div>
+          <motion.div
+            onMouseEnter={() => setIsHovering && setIsHovering(true)}
+            onMouseLeave={() => setIsHovering && setIsHovering(false)}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
+            viewport={{ once: true, margin: "-10%" }}
+          >
             <ScrollTriggeredText
               text="Motion, to me, is the softest form of storytelling. A hover that brightens slightly, a panel that slides in with a gentle pause — these are tiny performances."
               delay={0}
@@ -883,7 +964,7 @@ function EnhancedMotionSection({ setIsHovering }) {
               text="They don't shout; they suggest. Like a dancer whose movement communicates feeling without words, an interaction on a site can express warmth, urgency, or calm."
               delay={0.5}
             />
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </SectionWrapper>
@@ -1284,11 +1365,23 @@ function ConclusionSection() {
 
 function SectionWrapper({ children, bgColor }) {
   return (
-    <section
+    <motion.section
       className={`min-h-screen flex items-center justify-center px-6 py-20 ${bgColor} relative overflow-hidden`}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-10%" }}
     >
-      {children}
-    </section>
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+        viewport={{ once: true, margin: "-10%" }}
+        className="w-full"
+      >
+        {children}
+      </motion.div>
+    </motion.section>
   );
 }
 
@@ -1305,14 +1398,25 @@ function FloatingElement({ emoji, delay }) {
         left: `${getSeededValue(Math.abs(emojiHash), 10, 90)}%`,
         top: `${getSeededValue(Math.abs(emojiHash) + 1000, 10, 90)}%`,
       }}
+      initial={{ opacity: 0, scale: 0, rotate: -180 }}
+      whileInView={{
+        opacity: 0.2,
+        scale: 1,
+        rotate: 0,
+      }}
+      transition={{
+        duration: 1.2,
+        delay: delay,
+        ease: "easeOut",
+      }}
+      viewport={{ once: true, margin: "-10%" }}
       animate={{
         y: [-20, 20, -20],
         rotate: [-5, 5, -5],
-      }}
-      transition={{
-        repeat: Infinity,
-        duration: 4 + getSeededValue(Math.abs(emojiHash) + 2000, 0, 2),
-        delay: delay,
+        transition: {
+          repeat: Infinity,
+          duration: 4 + getSeededValue(Math.abs(emojiHash) + 2000, 0, 2),
+        },
       }}
     >
       {emoji}
@@ -1329,11 +1433,14 @@ function GridBackground() {
             key={i}
             className="bg-white"
             initial={{ opacity: 0 }}
+            whileInView={{ opacity: 0.5 }}
+            viewport={{ once: true, margin: "-10%" }}
             animate={{ opacity: [0, 0.5, 0] }}
             transition={{
-              repeat: Infinity,
-              duration: 2,
-              delay: i * 0.05,
+              opacity: {
+                initial: { duration: 0.5, delay: i * 0.01, ease: "easeOut" },
+                animate: { repeat: Infinity, duration: 2, delay: i * 0.05 },
+              },
             }}
           />
         ))}
@@ -1355,15 +1462,29 @@ function DancingElements() {
             left: `${20 + el * 12}%`,
             top: `${30 + (el % 2) * 40}%`,
           }}
+          initial={{ opacity: 0, scale: 0 }}
+          whileInView={{
+            opacity: 1,
+            scale: 1,
+          }}
+          viewport={{ once: true, margin: "-10%" }}
           animate={{
             y: [-30, 30, -30],
             x: [-15, 15, -15],
             scale: [1, 1.2, 1],
           }}
           transition={{
-            repeat: Infinity,
-            duration: 3 + el * 0.5,
-            ease: "easeInOut",
+            opacity: { duration: 0.8, delay: el * 0.15, ease: "easeOut" },
+            scale: {
+              initial: { duration: 0.8, delay: el * 0.15, ease: "easeOut" },
+              animate: {
+                repeat: Infinity,
+                duration: 3 + el * 0.5,
+                ease: "easeInOut",
+              },
+            },
+            y: { repeat: Infinity, duration: 3 + el * 0.5, ease: "easeInOut" },
+            x: { repeat: Infinity, duration: 3 + el * 0.5, ease: "easeInOut" },
           }}
         />
       ))}
@@ -1386,14 +1507,25 @@ function RhythmicShapes() {
             left: `${10 + shape * 10}%`,
             top: `${50}%`,
           }}
+          initial={{ opacity: 0, scale: 0, rotateZ: -180 }}
+          whileInView={{
+            opacity: 1,
+            scale: 1,
+            rotateZ: 0,
+          }}
+          viewport={{ once: true, margin: "-10%" }}
           animate={{
             scaleY: [1, 2, 1],
             rotateZ: [0, 180, 360],
           }}
           transition={{
-            repeat: Infinity,
-            duration: 1.5,
-            delay: shape * 0.1,
+            opacity: { duration: 0.8, delay: shape * 0.1, ease: "easeOut" },
+            scale: { duration: 0.8, delay: shape * 0.1, ease: "easeOut" },
+            rotateZ: {
+              initial: { duration: 0.8, delay: shape * 0.1, ease: "easeOut" },
+              animate: { repeat: Infinity, duration: 1.5, delay: shape * 0.1 },
+            },
+            scaleY: { repeat: Infinity, duration: 1.5, delay: shape * 0.1 },
           }}
         />
       ))}
@@ -1423,13 +1555,29 @@ function CollageElements() {
             top: `${getSeededValue(el * 5 + 3, 0, 90)}%`,
             transform: `rotate(${getSeededValue(el * 5 + 4, 0, 45)}deg)`,
           }}
+          initial={{ opacity: 0, scale: 0 }}
+          whileInView={{
+            opacity: 1,
+            scale: 1,
+          }}
+          viewport={{ once: true, margin: "-10%" }}
           animate={{
             rotate: [0, 360],
             scale: [1, 1.1, 1],
           }}
           transition={{
-            repeat: Infinity,
-            duration: 8 + getSeededValue(el + 200, 0, 4),
+            opacity: { duration: 1, delay: el * 0.1, ease: "easeOut" },
+            scale: {
+              initial: { duration: 1, delay: el * 0.1, ease: "easeOut" },
+              animate: {
+                repeat: Infinity,
+                duration: 8 + getSeededValue(el + 200, 0, 4),
+              },
+            },
+            rotate: {
+              repeat: Infinity,
+              duration: 8 + getSeededValue(el + 200, 0, 4),
+            },
           }}
         />
       ))}
@@ -1442,13 +1590,29 @@ function MinimalShapes() {
     <div className="absolute inset-0 opacity-10">
       <motion.div
         className="absolute top-1/4 left-1/4 w-32 h-32 border border-gray-300 rounded-full"
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
         animate={{ rotate: 360 }}
-        transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+        transition={{
+          opacity: { duration: 1, ease: "easeOut" },
+          scale: { duration: 1, ease: "easeOut" },
+          rotate: { repeat: Infinity, duration: 20, ease: "linear" },
+        }}
       />
       <motion.div
         className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-gray-200"
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-10%" }}
         animate={{ scale: [1, 1.05, 1] }}
-        transition={{ repeat: Infinity, duration: 4 }}
+        transition={{
+          opacity: { duration: 1.2, delay: 0.3, ease: "easeOut" },
+          scale: {
+            initial: { duration: 1.2, delay: 0.3, ease: "easeOut" },
+            animate: { repeat: Infinity, duration: 4 },
+          },
+        }}
       />
     </div>
   );
@@ -1468,14 +1632,25 @@ function UnifyingElements() {
             left: `${el * 8}%`,
             top: `${getSeededValue(el + 400, 0, 50)}%`,
           }}
+          initial={{ opacity: 0, scaleY: 0 }}
+          whileInView={{
+            opacity: 0.3,
+            scaleY: 0.5,
+          }}
+          viewport={{ once: true, margin: "-10%" }}
           animate={{
             scaleY: [0.5, 1.5, 0.5],
             opacity: [0.3, 0.8, 0.3],
           }}
           transition={{
-            repeat: Infinity,
-            duration: 3,
-            delay: el * 0.2,
+            opacity: {
+              initial: { duration: 0.8, delay: el * 0.05, ease: "easeOut" },
+              animate: { repeat: Infinity, duration: 3, delay: el * 0.2 },
+            },
+            scaleY: {
+              initial: { duration: 0.8, delay: el * 0.05, ease: "easeOut" },
+              animate: { repeat: Infinity, duration: 3, delay: el * 0.2 },
+            },
           }}
         />
       ))}
