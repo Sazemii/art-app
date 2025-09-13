@@ -10,7 +10,6 @@ function FootstepTrail() {
   const containerRef = useRef(null);
   const lastSpawnTime = useRef(0);
   const lastPosition = useRef({ x: 0, y: 0 });
-  const currentPosition = useRef({ x: 0, y: 0 });
   const footstepId = useRef(0);
   const isInitialized = useRef(false);
 
@@ -22,9 +21,6 @@ function FootstepTrail() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Update current position
-    currentPosition.current = { x, y };
-
     // Initialize position if first time
     if (!isInitialized.current) {
       lastPosition.current = { x, y };
@@ -35,29 +31,27 @@ function FootstepTrail() {
 
     const now = Date.now();
 
-    // Only spawn footstep after 500ms delay
-    if (now - lastSpawnTime.current < 500) return;
+    // Only spawn footstep after 120ms delay
+    if (now - lastSpawnTime.current < 120) return;
 
-    // Calculate movement direction from last spawn point
+    // Calculate movement direction from last spawn point to current position
     const deltaX = x - lastPosition.current.x;
     const deltaY = y - lastPosition.current.y;
 
     // Only spawn if there's significant movement
-    if (Math.abs(deltaX) < 5 && Math.abs(deltaY) < 5) return;
+    if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) return;
 
     // Calculate rotation based on movement direction
-    let rotation = 0;
-    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
-      rotation = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-      // Adjust rotation so footprints point in direction of movement
-      rotation += 90; // Footprints icon points up by default, so add 90 degrees
-    }
+    // atan2 gives us the angle in radians, convert to degrees
+    // We add 90 degrees because the footprint icon points up by default
+    // and we want it to point in the direction of movement
+    const rotation = Math.atan2(deltaY, deltaX) * (180 / Math.PI) + 90;
 
-    // Add footstep at current position
+    // Add footstep at the last spawn position (where the foot was placed)
     const newFootstep = {
       id: footstepId.current++,
-      x,
-      y,
+      x: lastPosition.current.x,
+      y: lastPosition.current.y,
       timestamp: now,
       rotation: rotation,
     };
@@ -80,7 +74,7 @@ function FootstepTrail() {
     const cleanup = setInterval(() => {
       const now = Date.now();
       setFootsteps((prev) =>
-        prev.filter((footstep) => now - footstep.timestamp < 3000)
+        prev.filter((footstep) => now - footstep.timestamp < 4000)
       );
     }, 100);
 
@@ -93,29 +87,43 @@ function FootstepTrail() {
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 z-0"
+      className="absolute inset-0 z-10"
       style={{ pointerEvents: "auto" }}
     >
       {/* Footsteps layer */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {footsteps.map((footstep) => (
+        {footsteps.map((footstep, index) => (
           <motion.div
             key={footstep.id}
-            className="absolute text-black"
+            className="absolute"
             style={{
               left: footstep.x - 12,
               top: footstep.y - 12,
-              transform: `rotate(${footstep.rotation}deg)`,
             }}
-            initial={{ opacity: 0.8, scale: 0.6 }}
+            initial={{ 
+              opacity: 0, 
+              scale: 0.3, 
+              rotate: footstep.rotation 
+            }}
             animate={{
-              opacity: 0,
-              scale: 1.2,
-              y: -6,
-              transition: { duration: 3, ease: "easeOut" },
+              opacity: [0, 0.8, 0.6, 0],
+              scale: [0.3, 1, 1.1, 1.2],
+              y: [0, -2, -4, -8],
+              rotate: footstep.rotation,
+            }}
+            transition={{ 
+              duration: 4, 
+              ease: "easeOut",
+              times: [0, 0.1, 0.5, 1]
             }}
           >
-            <Footprints size={24} />
+            <Footprints 
+              size={24} 
+              className="text-orange-200 drop-shadow-lg" 
+              style={{
+                filter: `hue-rotate(${index * 10}deg) brightness(0.9)`
+              }}
+            />
           </motion.div>
         ))}
       </div>
@@ -133,7 +141,7 @@ function EnhancedTrainingSection({ setIsHovering }) {
 
         {/* Content container */}
         <motion.div
-          className="max-w-4xl mx-auto relative z-20 pointer-events-none"
+          className="max-w-4xl mx-auto relative z-30 pointer-events-none"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1 }}

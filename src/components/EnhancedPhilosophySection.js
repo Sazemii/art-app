@@ -62,7 +62,7 @@ function EnhancedPhilosophySection({ setIsHovering }) {
   });
 
   return (
-    <SectionWrapper bgColor="bg-gradient-to-br from-white to-gray-50">
+    <SectionWrapper bgColor="bg-white">
       {/* Wind animation background covering the full section */}
       <WindAnimation />
 
